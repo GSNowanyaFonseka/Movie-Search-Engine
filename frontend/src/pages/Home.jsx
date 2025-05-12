@@ -1,17 +1,35 @@
 import MovieCard from "../Components/MovieCard";
 import {useState} from 'react';
 import '../css/Home.css';
+// import { getPopularMovies, searchMovies } from "../services/api";
+import {searchMovies, getPopularMovies} from '../services/api';
+import { useEffect } from "react";
 
 function Home(){
-
+ 
     const [searchQuery,setSearchQuery] = useState('');
+    const [movies,setMovies] = useState([]);
+    const [error,setError] = useState(null);
+    const [loading,setLoading] = useState(true)
 
-    const movies = [
-        {id:1, title:"Totoro the neighbour", release_date:"2020"},
-        {id:2, title:"Encanto", release_date:"2021"},
-        {id:3, title:"Minions", release_date:"2022"},
-    ]
+    useEffect(() => {
+        const loadPopularMovies= async () => {
+            try{
+                const popularMovies = await getPopularMovies();
+                setMovies(popularMovies);
+            }
+            catch(err){
+                console.log(err);
+                setError('Failed to load movies')
+            }
+            finally{
+                setLoading(false);
+            }
+        }
 
+        loadPopularMovies()
+    }, [])
+    
     const handleSearch = (e) => {
         e.preventDefault()
         alert(searchQuery)
@@ -26,7 +44,8 @@ function Home(){
                 <button type="submit" className="submit-button"> Search </button>
             </form>
 
-            <div className="movies-grid">
+            [error ]
+            {loading ? (<div className="loading">Loading.....</div>) : <div className="movies-grid">
                 {movies.map(
                     (movie) => 
                         // movie.title.toLowerCase().startsWith(searchQuery) && 
@@ -34,7 +53,8 @@ function Home(){
                              <MovieCard movie={movie} key={movie.id}/>
                         )
                 )}
-            </div>
+            </div>}
+            
         </div>
     );
 }
